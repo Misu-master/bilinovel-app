@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>哔哩轻小说 App · UI 产品设计</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#E9E9EF}
+body{font-family:'Inter',system-ui,-apple-system,'Segoe UI','Microsoft YaHei','PingFang SC',sans-serif;color:#1F1F27;-webkit-font-smoothing:antialiased;line-height:1.5}
+.sprite{position:absolute;width:0;height:0;overflow:hidden}
+
+/* ============ design tokens ============ */
+.t-light{
+  --brand:#E84848;--brand-d:#A11313;--brand-lt:#FDF0EF;--brand-lt2:#FBDCDA;
+  --accent:#FC7403;
+  --bg:#F5F5F7;--surface:#FFFFFF;--surface2:#FAFAFC;--field:#F2F2F6;
+  --txt1:#1A1A1E;--txt2:#5B5B66;--txt3:#9A9AA6;
+  --line:#EDEDF1;--div:#F4F4F7;
+  --reader:#F6F1E7;--reader-txt:#2B2B2B;--reader-dim:#8C8574;
+}
+.t-dark{
+  --brand:#F2565B;--brand-d:#FF7A7E;--brand-lt:#2B181B;--brand-lt2:#3B1F23;
+  --accent:#FF8A2B;
+  --bg:#0E0E12;--surface:#17171D;--surface2:#1C1C24;--field:#22222B;
+  --txt1:#F0F0F4;--txt2:#9C9CA8;--txt3:#6B6B78;
+  --line:#272730;--div:#1E1E26;
+  --reader:#131318;--reader-txt:#C9C9D2;--reader-dim:#6E6E7C;
+}
+
+/* ============ document / spec ============ */
+.doc-head{padding:56px 48px 32px;max-width:1180px;margin:0 auto}
+.doc-head h1{font-size:30px;font-weight:600;letter-spacing:-.5px}
+.doc-head .sub{margin-top:10px;font-size:14px;color:#5B5B66}
+.kv{margin-top:20px;display:flex;flex-wrap:wrap;gap:8px}
+.kv span{font-size:12px;color:#5B5B66;background:#fff;border:1px solid #E2E2EA;border-radius:999px;padding:5px 12px}
+.spec{max-width:1180px;margin:0 auto;padding:0 48px}
+.spec h2{font-size:19px;font-weight:600;margin:40px 0 16px;padding-bottom:10px;border-bottom:2px solid #1F1F27;letter-spacing:-.3px}
+.spec h2:first-child{margin-top:0}
+.spec p{font-size:13.5px;color:#5B5B66;margin:8px 0}
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.sw{border:1px solid #E2E2EA;border-radius:12px;overflow:hidden;background:#fff}
+.sw .chip{height:56px}
+.sw .lb{padding:9px 12px;font-size:12px}
+.sw .lb b{display:block;font-weight:600;color:#1F1F27}
+.sw .lb i{font-style:normal;color:#8A8A96;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px}
+table.tb{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #E2E2EA;font-size:13px}
+table.tb th{background:#F4F4F8;text-align:left;padding:11px 14px;font-weight:600;font-size:12.5px;color:#3A3A46;white-space:nowrap}
+table.tb td{padding:11px 14px;border-top:1px solid #EFEFF4;color:#4A4A58;vertical-align:top}
+table.tb td:first-child{color:#1F1F27;font-weight:500}
+.spec ul{margin:8px 0 0 18px}
+.spec li{font-size:13.5px;color:#4A4A58;margin:5px 0}
+.type-row{display:flex;align-items:baseline;gap:14px;background:#fff;border:1px solid #E2E2EA;border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.type-row .tg{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#8A8A96;width:150px;flex:0 0 auto}
+
+/* ============ gallery ============ */
+.gal-bar{max-width:1180px;margin:56px auto 0;padding:0 48px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.gal-bar h2{font-size:19px;font-weight:600;padding-bottom:10px;border-bottom:2px solid #1F1F27;letter-spacing:-.3px;flex:1}
+.btnrow{display:flex;gap:8px;padding-bottom:10px}
+.btnrow button{font:inherit;font-size:12.5px;padding:7px 16px;border-radius:999px;border:1px solid #D6D6E0;background:#fff;color:#3A3A46;cursor:pointer}
+.btnrow button.on{background:#1F1F27;border-color:#1F1F27;color:#fff}
+.gallery{display:flex;flex-wrap:wrap;gap:44px 40px;padding:36px 48px 110px;justify-content:center;max-width:1180px;margin:0 auto}
+figure.shot{width:360px}
+figure.shot figcaption{margin-top:14px;font-size:13px;color:#4A4A58;display:flex;align-items:center;gap:8px}
+figure.shot figcaption b{font-weight:600;color:#1F1F27}
+figure.shot figcaption em{font-style:normal;font-size:11px;color:#8A8A96;border:1px solid #D6D6E0;border-radius:999px;padding:2px 9px}
+body.hide-dark figure.shot.is-dark{display:none}
+
+/* ============ phone canvas ============ */
+.screen{position:relative;width:360px;height:720px;overflow:hidden;border-radius:22px;
+  background:var(--bg);color:var(--txt1);font-size:13px;line-height:1.5;
+  display:flex;flex-direction:column;box-shadow:0 10px 30px rgba(20,20,45,.16)}
+.screen.is-reader{background:var(--reader);color:var(--reader-txt)}
+.scroll{flex:1;overflow:hidden;position:relative}
+
+/* status bar */
+.sbar{flex:0 0 26px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:11px;font-weight:600}
+.sbar .rt{display:flex;align-items:center;gap:5px}
+.sbar .rt svg{width:13px;height:11px}
+.sbar .bat{width:18px;height:9px;border:1px solid currentColor;border-radius:2.5px;position:relative;opacity:.85}
+.sbar .bat::after{content:"";position:absolute;left:1.5px;top:1.5px;bottom:1.5px;width:9px;background:currentColor;border-radius:1px}
+.sbar.on-img{color:#fff}
+
+/* generic icon */
+.ic{width:20px;height:20px;flex:0 0 auto}
+.ic-sm{width:16px;height:16px}
+
+/* app bar */
+.appbar{flex:0 0 52px;display:flex;align-items:center;gap:10px;padding:0 16px}
+.logo{width:28px;height:28px;border-radius:9px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:0 0 auto}
+.search{flex:1;height:36px;border-radius:999px;background:var(--field);display:flex;align-items:center;gap:8px;padding:0 14px;color:var(--txt3);font-size:13px;min-width:0}
+.search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.iconbtn{width:36px;height:36px;border-radius:999px;background:var(--field);display:flex;align-items:center;justify-content:center;color:var(--txt2);flex:0 0 auto}
+.iconbtn.ghost{background:transparent}
+
+/* section head */
+.sh{display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-top:16px;height:24px}
+.sh h3{font-size:15px;font-weight:600;letter-spacing:-.2px}
+.sh .more{font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:1px}
+.sh .more .ic{width:13px;height:13px}
+
+/* banner */
+.banner{margin:12px 16px 0;height:144px;border-radius:14px;overflow:hidden;position:relative;background:var(--surface2)}
+.banner img{width:100%;height:100%;object-fit:cover;display:block}
+.banner .veil{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.42) 44%,rgba(0,0,0,0) 76%)}
+.banner .bd{position:absolute;left:14px;right:64px;bottom:12px;color:#fff}
+.banner .bd h4{font-size:15px;font-weight:600;line-height:1.32;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.banner .bd p{font-size:11px;opacity:.82;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{position:absolute;left:12px;top:12px;height:20px;padding:0 8px;border-radius:6px;background:rgba(0,0,0,.42);backdrop-filter:blur(4px);color:#fff;font-size:11px;display:flex;align-items:center}
+.dots{position:absolute;right:14px;bottom:13px;display:flex;gap:4px}
+.dots i{width:5px;height:5px;border-radius:999px;background:rgba(255,255,255,.45)}
+.dots i.on{width:12px;background:#fff}
+
+/* category rings */
+.cats{display:flex;gap:16px;padding:0 16px;margin-top:12px;overflow:hidden}
+.cat{flex:0 0 auto;width:46px;text-align:center}
+.cat .ring{width:46px;height:46px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;letter-spacing:-.4px}
+.cat em{display:block;font-style:normal;font-size:10.5px;color:var(--txt2);margin-top:6px;white-space:nowrap}
+
+/* tabs */
+.tabs{display:flex;gap:7px;padding:0 16px;margin-top:11px}
+.tab{height:26px;padding:0 13px;border-radius:999px;font-size:12px;display:flex;align-items:center;background:var(--field);color:var(--txt2)}
+.tab.on{background:var(--brand);color:#fff;font-weight:500}
+
+/* rank list */
+.ranks{padding:0 16px;margin-top:9px}
+.rank{display:flex;align-items:center;gap:11px;height:64px}
+.rank .no{width:17px;text-align:center;font-size:13px;font-weight:700;font-style:italic;color:var(--txt3);flex:0 0 auto}
+.rank .no.hi{color:var(--brand)}
+.rank img{width:38px;height:54px;border-radius:5px;object-fit:cover;flex:0 0 auto;background:var(--surface2)}
+.rank .m{flex:1;min-width:0}
+.rank .m h4{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank .m p{font-size:11px;color:var(--txt3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank .hot{font-size:11px;color:var(--accent);flex:0 0 auto;font-weight:500}
+
+/* chip rows */
+.chips{display:flex;gap:8px;padding:0 16px;margin-top:10px;overflow:hidden}
+.chip{flex:0 0 auto;height:32px;padding:0 14px;border-radius:999px;background:var(--field);color:var(--txt2);font-size:12.5px;display:flex;align-items:center}
+.chip.on{background:var(--brand);color:#fff;font-weight:500}
+.chip.tag{height:30px;padding:0 12px;font-size:12px;background:transparent;border:1px solid var(--line);color:var(--txt2)}
+
+/* sort bar */
+.sortbar{display:flex;align-items:center;gap:18px;padding:0 16px;margin-top:12px;height:34px;border-bottom:1px solid var(--div)}
+.sortbar b{font-size:13px;font-weight:600;color:var(--txt1);position:relative}
+.sortbar b::after{content:"";position:absolute;left:0;right:0;bottom:-9px;height:2px;border-radius:2px;background:var(--brand)}
+.sortbar span{font-size:13px;color:var(--txt3)}
+.sortbar .sp{margin-left:auto;color:var(--txt3)}
+
+/* book list card */
+.bcard{display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid var(--div)}
+.bcard img{width:62px;height:86px;border-radius:6px;object-fit:cover;flex:0 0 auto;background:var(--surface2)}
+.bcard .m{flex:1;min-width:0;display:flex;flex-direction:column}
+.bcard h4{font-size:14px;font-weight:500;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bcard .desc{font-size:11.5px;color:var(--txt3);line-height:1.45;margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bcard .meta{display:flex;align-items:center;gap:6px;margin-top:auto;font-size:11px;color:var(--txt3)}
+.bcard .meta i{font-style:normal;padding:1px 6px;border-radius:4px;background:var(--brand-lt);color:var(--brand-d)}
+.bcard .meta .ch{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* tab bar */
+.tabbar{flex:0 0 54px;display:flex;background:var(--surface);border-top:1px solid var(--line)}
+.tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;color:var(--txt3);text-decoration:none}
+.tabbar a.on{color:var(--brand)}
+
+/* ---- detail page ---- */
+.hero{position:relative;height:202px;flex:0 0 auto;overflow:hidden}
+.hero .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero .veil{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.5) 0%,rgba(0,0,0,.58) 52%,rgba(0,0,0,.86) 100%)}
+.hero .in{position:relative;z-index:2;color:#fff}
+.nav{display:flex;align-items:center;height:44px;padding:0 16px}
+.nav .t{flex:1;font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav .iconbtn{background:rgba(0,0,0,.3);color:#fff}
+.hinfo{display:flex;gap:14px;padding:2px 16px 0}
+.hinfo .cover{width:84px;height:116px;border-radius:8px;object-fit:cover;flex:0 0 auto;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+.hinfo .tx{flex:1;min-width:0;padding-top:2px}
+.hinfo h2{font-size:16px;font-weight:600;line-height:1.32;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hinfo .au{font-size:12px;opacity:.82;margin-top:7px}
+.hinfo .pl{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+.hinfo .pl span{height:20px;padding:0 8px;border-radius:5px;background:rgba(255,255,255,.16);font-size:11px;display:flex;align-items:center}
+.dbody{flex:1;overflow:hidden;padding:0 16px}
+.dtags{display:flex;gap:8px;margin-top:14px;height:26px;overflow:hidden}
+.dtags span{flex:0 0 auto;height:26px;padding:0 11px;border-radius:999px;background:var(--field);color:var(--txt2);font-size:12px;display:flex;align-items:center}
+.acts{display:flex;gap:10px;margin-top:14px;height:44px}
+.acts .b1{flex:1;border-radius:10px;background:var(--brand);color:#fff;font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px}
+.acts .b2{flex:1;border-radius:10px;background:var(--brand-lt);color:var(--brand-d);font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px}
+.acts .b3{width:44px;border-radius:10px;background:var(--field);color:var(--txt2);display:flex;align-items:center;justify-content:center}
+.blk{margin-top:18px}
+.blk .bh{display:flex;align-items:center;justify-content:space-between;height:22px}
+.blk .bh h3{font-size:14px;font-weight:600}
+.blk .bh .more{font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:1px}
+.blk .bh .more .ic{width:13px;height:13px}
+.blk .txt{font-size:12.5px;color:var(--txt2);line-height:1.72;margin-top:8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.chap{display:flex;align-items:center;gap:10px;height:42px;font-size:13px;color:var(--txt1);border-bottom:1px solid var(--div)}
+.chap em{font-style:normal;font-size:11px;color:var(--txt3);flex:0 0 auto}
+.chap span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cta{flex:0 0 64px;display:flex;align-items:center;gap:10px;padding:0 16px;background:var(--surface);border-top:1px solid var(--line)}
+.cta .sb{width:56px;text-align:center;font-size:10.5px;color:var(--txt3)}
+.cta .sb .ic{display:block;margin:0 auto 2px;color:var(--txt2)}
+.cta .go{flex:1;height:44px;border-radius:999px;background:var(--brand);color:#fff;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center}
+
+/* ---- reader ---- */
+.rbar{flex:0 0 auto;display:flex;align-items:center;background:var(--reader);position:relative;z-index:2}
+.rbar.top{height:44px;padding:0 12px;gap:4px}
+.rbar.top .t{flex:1;min-width:0;text-align:center}
+.rbar.top .t b{display:block;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rbar.top .t i{display:block;font-style:normal;font-size:10.5px;color:var(--reader-dim);margin-top:1px}
+.rbar .iconbtn{background:transparent;color:var(--reader-txt);width:34px;height:34px}
+.rtext{flex:1;overflow:hidden;padding:0 20px}
+.rtext h2{font-size:16px;font-weight:600;margin:14px 0 12px;letter-spacing:-.2px}
+.rtext p{font-size:15.5px;line-height:1.86;margin-bottom:9px;text-indent:2em;text-align:justify;color:var(--reader-txt)}
+.rbar.bot{flex:0 0 112px;flex-direction:column;justify-content:center;gap:14px;padding:0 16px;border-top:1px solid rgba(140,133,116,.18)}
+.prog{width:100%;display:flex;align-items:center;gap:10px;font-size:11px;color:var(--reader-dim)}
+.prog .pb{flex:1;height:3px;border-radius:2px;background:rgba(140,133,116,.28);position:relative}
+.prog .pb i{position:absolute;left:0;top:0;bottom:0;width:34%;border-radius:2px;background:var(--brand)}
+.racts{display:flex;justify-content:space-between;width:100%;padding:0 6px}
+.racts .rb{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;color:var(--reader-dim)}
+.racts .rb.on{color:var(--brand)}
+
+/* ============ export mode ============ */
+body.only-mode{background:transparent}
+body.only-mode .doc-head,body.only-mode .spec,body.only-mode .gal-bar{display:none}
+body.only-mode .gallery{padding:0;margin:0;gap:0;display:block;max-width:none}
+body.only-mode figure.shot{width:360px;height:720px;margin:0}
+body.only-mode figure.shot figcaption{display:none}
+body.only-mode .screen{border-radius:0;box-shadow:none}
+
+/* ============ print / pdf ============ */
+@media print{
+  @page{size:A4;margin:13mm 12mm}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html,body{background:#fff}
+  .btnrow{display:none}
+  .doc-head{padding:0 0 20px;max-width:none}
+  .spec{padding:0;max-width:none}
+  .gal-bar{padding:0;max-width:none;margin-top:26px}
+  .gallery{padding:20px 0 0;margin:0;gap:22px 22px;justify-content:flex-start;max-width:none}
+  figure.shot{width:294px;height:596px;break-inside:avoid;page-break-inside:avoid}
+  figure.shot .screen{transform:scale(.8167);transform-origin:top left}
+  figure.shot figcaption{margin-top:6px;font-size:11px}
+  .sw,.tb,.type-row,.swatches{break-inside:avoid;page-break-inside:avoid}
+  .spec h2{break-after:avoid;page-break-after:avoid}
+  table.tb{font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<svg class="sprite" aria-hidden="true" focusable="false">
+<symbol id="i-search" viewBox="0 0 20 20"><circle cx="9" cy="9" r="5.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M13.1 13.1 17 17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+<symbol id="i-bell" viewBox="0 0 20 20"><path d="M10 3.2a4.2 4.2 0 0 0-4.2 4.2v2.4L4.3 12.4h11.4l-1.5-2.6V7.4A4.2 4.2 0 0 0 10 3.2Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.4 14.4a1.6 1.6 0 0 0 3.2 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+<symbol id="i-back" viewBox="0 0 20 20"><path d="M12.4 4.6 7 10l5.4 5.4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-more" viewBox="0 0 20 20"><circle cx="4.6" cy="10" r="1.6" fill="currentColor"/><circle cx="10" cy="10" r="1.6" fill="currentColor"/><circle cx="15.4" cy="10" r="1.6" fill="currentColor"/></symbol>
+<symbol id="i-share" viewBox="0 0 20 20"><circle cx="14.2" cy="5.2" r="2.2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="5.8" cy="10" r="2.2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="14.2" cy="14.8" r="2.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7.8 8.9l4.4-2.5M7.8 11.1l4.4 2.5" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+<symbol id="i-home" viewBox="0 0 20 20"><path d="M3.2 8.4 10 3.2l6.8 5.2V16a1 1 0 0 1-1 1h-3.4v-4.6H7.6V17H4.2a1 1 0 0 1-1-1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+<symbol id="i-grid" viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+<symbol id="i-shelf" viewBox="0 0 20 20"><path d="M5 3h10a1 1 0 0 1 1 1v13l-6-3.3L4 17V4a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+<symbol id="i-user" viewBox="0 0 20 20"><circle cx="10" cy="6.8" r="3.3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3.9 17c0-3.3 2.8-5.1 6.1-5.1s6.1 1.8 6.1 5.1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+<symbol id="i-list" viewBox="0 0 20 20"><path d="M4 6h12M4 10h12M4 14h8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+<symbol id="i-sun" viewBox="0 0 20 20"><circle cx="10" cy="10" r="3.4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 2.6v1.8M10 15.6v1.8M2.6 10h1.8M15.6 10h1.8M4.8 4.8l1.3 1.3M13.9 13.9l1.3 1.3M15.2 4.8l-1.3 1.3M6.1 13.9l-1.3 1.3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+<symbol id="i-moon" viewBox="0 0 20 20"><path d="M15.6 12.2A6.1 6.1 0 0 1 7.8 4.4a6.1 6.1 0 1 0 7.8 7.8Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+<symbol id="i-set" viewBox="0 0 20 20"><path d="M3.4 6.4h7.2M14.6 6.4h2M3.4 13.6h2M9.4 13.6h7.2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12.4" cy="6.4" r="1.9" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="7.4" cy="13.6" r="1.9" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+<symbol id="i-dl" viewBox="0 0 20 20"><path d="M10 3.2v8.6M6.6 8.4 10 11.8l3.4-3.4M4 16.2h12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-plus" viewBox="0 0 20 20"><path d="M10 4.6v10.8M4.6 10h10.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="i-chev" viewBox="0 0 20 20"><path d="M7.6 4.6 13 10l-5.4 5.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-filter" viewBox="0 0 20 20"><path d="M3.4 5.6h13.2M5.6 10h8.8M8 14.4h4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+</svg>
+
+<header class="doc-head">
+  <h1>哔哩轻小说 App · UI 产品设计</h1>
+  <p class="sub">移动端界面设计 · Android 360×720 dp（9:18）· 明亮 / 深色双模式 · 4 个核心页面</p>
+  <div class="kv">
+    <span>参考来源：UI-design / 哔哩轻小说 PC 首页</span>
+    <span>风格基准：ui-ux-pro-max（Editorial Grid + Minimalism，Primary #DC2626）</span>
+    <span>品牌主色：继承原站 #E84848</span>
+    <span>v1.0 · 2026-09-22</span>
+  </div>
+</header>
+
+<section class="spec">
+  <h2>一、设计令牌</h2>
+
+  <p style="margin:0 0 14px">品牌色</p>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#E84848"></div><div class="lb"><b>品牌主色</b><i>#E84848</i></div></div>
+    <div class="sw"><div class="chip" style="background:#A11313"></div><div class="lb"><b>品牌深色</b><i>#A11313</i></div></div>
+    <div class="sw"><div class="chip" style="background:#FC7403"></div><div class="lb"><b>强调橙</b><i>#FC7403</i></div></div>
+    <div class="sw"><div class="chip" style="background:#FDF0EF"></div><div class="lb"><b>品牌浅底</b><i>#FDF0EF</i></div></div>
+  </div>
+
+  <p style="margin:22px 0 14px">中性色 · 明亮模式</p>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#F5F5F7"></div><div class="lb"><b>页面底</b><i>#F5F5F7</i></div></div>
+    <div class="sw"><div class="chip" style="background:#FFFFFF;border-bottom:1px solid #EDEDF1"></div><div class="lb"><b>卡片面</b><i>#FFFFFF</i></div></div>
+    <div class="sw"><div class="chip" style="background:#F2F2F6"></div><div class="lb"><b>填充 / 输入</b><i>#F2F2F6</i></div></div>
+    <div class="sw"><div class="chip" style="background:#EDEDF1"></div><div class="lb"><b>描边</b><i>#EDEDF1</i></div></div>
+    <div class="sw"><div class="chip" style="background:#1A1A1E"></div><div class="lb"><b>正文</b><i>#1A1A1E</i></div></div>
+    <div class="sw"><div class="chip" style="background:#5B5B66"></div><div class="lb"><b>次级文字</b><i>#5B5B66</i></div></div>
+    <div class="sw"><div class="chip" style="background:#9A9AA6"></div><div class="lb"><b>辅助文字</b><i>#9A9AA6</i></div></div>
+  </div>
+
+  <p style="margin:22px 0 14px">中性色 · 深色模式</p>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#0E0E12"></div><div class="lb"><b>页面底</b><i>#0E0E12</i></div></div>
+    <div class="sw"><div class="chip" style="background:#17171D"></div><div class="lb"><b>卡片面</b><i>#17171D</i></div></div>
+    <div class="sw"><div class="chip" style="background:#22222B"></div><div class="lb"><b>填充 / 输入</b><i>#22222B</i></div></div>
+    <div class="sw"><div class="chip" style="background:#272730"></div><div class="lb"><b>描边</b><i>#272730</i></div></div>
+    <div class="sw"><div class="chip" style="background:#F0F0F4"></div><div class="lb"><b>正文</b><i>#F0F0F4</i></div></div>
+    <div class="sw"><div class="chip" style="background:#9C9CA8"></div><div class="lb"><b>次级文字</b><i>#9C9CA8</i></div></div>
+    <div class="sw"><div class="chip" style="background:#F2565B"></div><div class="lb"><b>品牌主色</b><i>#F2565B</i></div></div>
+  </div>
+
+  <p style="margin:22px 0 10px">阅读器专用</p>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#F6F1E7"></div><div class="lb"><b>纸感底（日间）</b><i>#F6F1E7</i></div></div>
+    <div class="sw"><div class="chip" style="background:#2B2B2B"></div><div class="lb"><b>正文（日间）</b><i>#2B2B2B</i></div></div>
+    <div class="sw"><div class="chip" style="background:#131318"></div><div class="lb"><b>夜间底</b><i>#131318</i></div></div>
+    <div class="sw"><div class="chip" style="background:#C9C9D2"></div><div class="lb"><b>正文（夜间）</b><i>#C9C9D2</i></div></div>
+  </div>
+
+  <h2>二、字体与度量</h2>
+  <div class="type-row"><span class="tg">页面主标题 / 20 600</span><span style="font-size:20px;font-weight:600">榜单 · 本周热读</span></div>
+  <div class="type-row"><span class="tg">区块标题 / 15 600</span><span style="font-size:15px;font-weight:600">热门文库</span></div>
+  <div class="type-row"><span class="tg">书名 / 14 500</span><span style="font-size:14px;font-weight:500">Re:从零开始的异世界生活</span></div>
+  <div class="type-row"><span class="tg">正文 / 13 400</span><span style="font-size:13px">走出便利商店要回家的高中生被召唤到异世界。</span></div>
+  <div class="type-row"><span class="tg">辅助 / 11 400</span><span style="font-size:11px;color:#9A9AA6">长月达平 · MF文库J · 553.5 万字</span></div>
+  <div class="type-row"><span class="tg">阅读正文 / 15.5 400</span><span style="font-size:15.5px;line-height:1.86">行高 1.86，首行缩进 2 字符，两端对齐</span></div>
+  <ul>
+    <li>字体族：Inter（西文）+ 系统中文（PingFang SC / Noto Sans SC / 微软雅黑）</li>
+    <li>栅格与间距：8 的倍数体系，页面左右边距固定 16dp</li>
+    <li>圆角：卡片 12dp · 封面 6dp · 胶囊 / 按钮 999dp · 搜索框 999dp</li>
+    <li>触控目标：所有可点元素不小于 44×44dp；底部 Tab 高 54dp</li>
+    <li>安全区：顶部状态栏 26dp，底部 Tab 需叠加系统手势条 16dp 内边距</li>
+  </ul>
+
+  <h2>三、移动端信息架构重构</h2>
+  <p style="margin-bottom:14px">PC 首页共 7 个模块、40+ 本书、4 个榜单、8 个分类块。以下为 App 端的取舍决策与理由：</p>
+  <table class="tb">
+    <thead><tr><th style="width:32%">PC 原站模块</th><th style="width:34%">App 端处理</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>顶部导航 5 项 + 登录 / 注册</td><td>底部 Tab 4 项（首页 / 分类 / 书架 / 我的）+ 顶部搜索框</td><td>拇指热区在屏幕下半部，底部导航更易触达；账号入口归入「我的」</td></tr>
+      <tr><td>强推榜 / 新书榜 / 热点榜（3 个独立模块）</td><td>合并为首页「榜单」模块，用页签切换</td><td>三者属性同质，分开陈列要占掉近 30 本书的篇幅，手机上无法承载</td></tr>
+      <tr><td>8 个文库分类块（每块 5 本）</td><td>首页金刚区圆形图标入口 → 跳分类列表页</td><td>首页只负责「指路」，全量陈列交给承接页，避免首页无限拉长</td></tr>
+      <tr><td>6 列「最近更新」表格（15 条）</td><td>分类页卡片式列表：封面 + 书名 + 简介 + 最新章节</td><td>360dp 宽度下 6 列表格完全不可读，必须改为卡片</td></tr>
+      <tr><td>3D 书架轮播（热门小说 / 经典完本）</td><td>首页 Banner 轮播 + 列表页横向书封</td><td>3D 书架依赖 hover 才显示详情，移动端没有 hover 状态</td></tr>
+      <tr><td>页脚 6 个链接 + 版权声明</td><td>收纳进「我的 → 关于与设置」</td><td>移动端不做页面级页脚</td></tr>
+    </tbody>
+  </table>
+
+  <h2>四、页面清单</h2>
+  <ul>
+    <li><b>01 首页</b> — 搜索栏 · Banner 轮播 · 文库金刚区 · 榜单（页签 + 前 3 名带封面）· 底部 Tab</li>
+    <li><b>02 分类列表页</b> — 文库筛选 · 题材标签筛选 · 排序栏 · 书籍卡片列表</li>
+    <li><b>03 书籍详情页</b> — 沉浸式头部（封面虚化）· 书籍信息 · 操作区 · 简介 · 目录 · 底部固定 CTA</li>
+    <li><b>04 阅读器</b> — 沉浸正文 · 顶部信息栏 · 底部进度与工具条（日间纸感 / 夜间深色）</li>
+  </ul>
+</section>
+
+<div class="gal-bar">
+  <h2>五、界面设计稿</h2>
+  <div class="btnrow">
+    <button data-f="both" class="on">全部</button>
+    <button data-f="light">仅明亮</button>
+    <button data-f="dark">仅深色</button>
+  </div>
+</div>
+
+<div class="gallery">
+
+  <figure class="shot" id="home-light">
+    <div class="screen t-light">
+      <div class="sbar"><span>9:41</span><span class="rt"><svg viewBox="0 0 20 16"><path d="M2 12h2.4V8H2v4Zm4.2 0h2.4V6H6.2v6Zm4.2 0h2.4V3.6h-2.4V12Zm4.2 0H17V1.4h-2.4V12Z" fill="currentColor"/></svg><span class="bat"></span></span></div>
+      <div class="appbar">
+        <div class="logo">哔</div>
+        <div class="search"><svg class="ic ic-sm"><use href="#i-search"/></svg><span>搜索书名、作者或文库</span></div>
+        <div class="iconbtn ghost"><svg class="ic"><use href="#i-bell"/></svg></div>
+      </div>
+      <div class="scroll">
+        <div class="banner">
+          <img src="assets/c01.jpg" alt="">
+          <div class="veil"></div>
+          <div class="badge">本周强推</div>
+          <div class="bd">
+            <h4>Re:从零开始的异世界生活</h4>
+            <p>长月达平 · MF文库J · 553.5 万字</p>
+          </div>
+          <div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+        </div>
+
+        <div class="sh"><h3>热门文库</h3><span class="more">全部<svg class="ic"><use href="#i-chev"/></svg></span></div>
+        <div class="cats">
+          <div class="cat"><div class="ring" style="background:#E84848">电击</div><em>电击文库</em></div>
+          <div class="cat"><div class="ring" style="background:#F2802E">富士</div><em>富士见</em></div>
+          <div class="cat"><div class="ring" style="background:#C4302B">角川</div><em>角川文库</em></div>
+          <div class="cat"><div class="ring" style="background:#E0563F">MF</div><em>MF文库J</em></div>
+          <div class="cat"><div class="ring" style="background:#D9A02B">Fami</div><em>Fami通</em></div>
+          <div class="cat"><div class="ring" style="background:#B04A6A">GA</div><em>GA文库</em></div>
+        </div>
+
+        <div class="sh"><h3>榜单</h3><span class="more">完整榜单<svg class="ic"><use href="#i-chev"/></svg></span></div>
+        <div class="tabs"><div class="tab on">推荐</div><div class="tab">新书</div><div class="tab">热读</div><div class="tab">完本</div></div>
+        <div class="ranks">
+          <div class="rank">
+            <span class="no hi">1</span>
+            <img src="assets/c01.jpg" alt="">
+            <div class="m"><h4>Re:从零开始的异世界生活</h4><p>长月达平 · MF文库J</p></div>
+            <span class="hot">553.5万</span>
+          </div>
+          <div class="rank">
+            <span class="no hi">2</span>
+            <img src="assets/c03.jpg" alt="">
+            <div class="m"><h4>败北女角太多了！</h4><p>雨森焚火 · 小学馆</p></div>
+            <span class="hot">304.0万</span>
+          </div>
+          <div class="rank">
+            <span class="no hi">3</span>
+            <img src="assets/c08.jpg" alt="">
+            <div class="m"><h4>无职转生 ～到了异世界就拿出真本事～</h4><p>理不尽な孙の手 · 角川文库</p></div>
+            <span class="hot">409.4万</span>
+          </div>
+          <div class="rank">
+            <span class="no">4</span>
+            <img src="assets/c07.jpg" alt="">
+            <div class="m"><h4>欢迎来到实力至上主义的教室</h4><p>衣笠彰梧 · MF文库J</p></div>
+            <span class="hot">858万</span>
+          </div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <a class="on"><svg class="ic"><use href="#i-home"/></svg>首页</a>
+        <a><svg class="ic"><use href="#i-grid"/></svg>分类</a>
+        <a><svg class="ic"><use href="#i-shelf"/></svg>书架</a>
+        <a><svg class="ic"><use href="#i-user"/></svg>我的</a>
+      </div>
+    </div>
+    <figcaption><b>01 首页</b><em>明亮</em></figcaption>
+  </figure>
+
+  <figure class="shot" id="list-light">
+    <div class="screen t-light">
+      <div class="sbar"><span>9:41</span><span class="rt"><svg viewBox="0 0 20 16"><path d="M2 12h2.4V8H2v4Zm4.2 0h2.4V6H6.2v6Zm4.2 0h2.4V3.6h-2.4V12Zm4.2 0H17V1.4h-2.4V12Z" fill="currentColor"/></svg><span class="bat"></span></span></div>
+      <div class="appbar" style="gap:8px">
+        <div class="iconbtn ghost"><svg class="ic"><use href="#i-back"/></svg></div>
+        <div class="search"><svg class="ic ic-sm"><use href="#i-search"/></svg><span>搜索书名、作者或文库</span></div>
+      </div>
+      <div class="scroll">
+        <div class="chips">
+          <div class="chip on">全部</div><div class="chip">电击文库</div><div class="chip">富士见</div>
+          <div class="chip">角川文库</div><div class="chip">MF文库J</div><div class="chip">GA文库</div>
+        </div>
+        <div class="chips" style="margin-top:8px">
+          <div class="chip tag on" style="background:var(--brand-lt);border-color:var(--brand-lt);color:var(--brand-d)">奇幻</div>
+          <div class="chip tag">恋爱</div><div class="chip tag">转生</div><div class="chip tag">校园</div>
+          <div class="chip tag">后宫</div><div class="chip tag">战斗</div><div class="chip tag">青春</div>
+        </div>
+        <div class="sortbar"><b>最近更新</b><span>字数</span><span>热度</span><span class="sp"><svg class="ic ic-sm"><use href="#i-filter"/></svg></span></div>
+        <div class="bcard">
+          <img src="assets/c02.jpg" alt="">
+          <div class="m">
+            <h4>不相容的異種族妻子們</h4>
+            <p class="desc">一夫多妻制已經遭到廢除。我們不必再勉強彼此共同生活了……</p>
+            <div class="meta"><i>novelpia</i><span class="ch">第113話 逼近的陰影（3）</span><span>09-22</span></div>
+          </div>
+        </div>
+        <div class="bcard">
+          <img src="assets/c04.jpg" alt="">
+          <div class="m">
+            <h4>成功回避死亡结局的美少女游戏女主们似乎读到了我的【日记本】</h4>
+            <p class="desc">女主角们都成了崇拜我的危险病娇。这到底是为什么啊……</p>
+            <div class="meta"><i>GA文库</i><span class="ch">BW特典 无法开始的人生游戏</span><span>09-22</span></div>
+          </div>
+        </div>
+        <div class="bcard">
+          <img src="assets/c06.jpg" alt="">
+          <div class="m">
+            <h4>只有我不知道妹妹们是「义妹」</h4>
+            <p class="desc">哥哥争夺战，正式开幕！小樽悠人有一对漂亮得足以成为话题的双胞胎妹妹。</p>
+            <div class="meta"><i>其他文库</i><span class="ch">第一卷 电子版特别附录</span><span>09-21</span></div>
+          </div>
+        </div>
+        <div class="bcard">
+          <img src="assets/c13.jpg" alt="">
+          <div class="m">
+            <h4>和努力家学姐进行『恋人的练习』，结果只有天才的我认真了</h4>
+            <p class="desc">哪怕明知道，那只是演技。「可别把初吻献出去啊。」</p>
+            <div class="meta"><i>MF文库J</i><span class="ch">第一卷 A店特典『背德』</span><span>09-21</span></div>
+          </div>
+        </div>
+        <div class="bcard">
+          <img src="assets/c05.jpg" alt="">
+          <div class="m">
+            <h4>我是不才恶女 ～雏宫蝶鼠互换传～</h4>
+            <p class="desc">「没有呼吸困难、也没有昏过去……。这么健康的身体！」</p>
+          </div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <a><svg class="ic"><use href="#i-home"/></svg>首页</a>
+        <a class="on"><svg class="ic"><use href="#i-grid"/></svg>分类</a>
+        <a><svg class="ic"><use href="#i-shelf"/></svg>书架</a>
+        <a><svg class="ic"><use href="#i-user"/></svg>我的</a>
+      </div>
+    </div>
+    <figcaption><b>02 分类列表页</b><em>明亮</em></figcaption>
+  </figure>
+
+  <figure class="shot" id="detail-light">
+    <div class="screen t-light">
+      <div class="hero">
+        <img class="bg" src="assets/c01.jpg" alt="">
+        <div class="veil"></div>
+        <div class="in">
+          <div class="sbar on-img"><span>9:41</span><span class="rt"><svg viewBox="0 0 20 16"><path d="M2 12h2.4V8H2v4Zm4.2 0h2.4V6H6.2v6Zm4.2 0h2.4V3.6h-2.4V12Zm4.2 0H17V1.4h-2.4V12Z" fill="currentColor"/></svg><span class="bat"></span></span></div>
+          <div class="nav">
+            <div class="iconbtn"><svg class="ic"><use href="#i-back"/></svg></div>
+            <div class="t"></div>
+            <div class="iconbtn"><svg class="ic"><use href="#i-share"/></svg></div>
+            <div class="iconbtn"><svg class="ic"><use href="#i-more"/></svg></div>
+          </div>
+          <div class="hinfo">
+            <img class="cover" src="assets/c01.jpg" alt="">
+            <div class="tx">
+              <h2>Re:从零开始的异世界生活</h2>
+              <div class="au">长月达平 著</div>
+              <div class="pl"><span>MF文库J</span><span>553.5 万字</span><span>连载中</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dbody">
+        <div class="dtags"><span>转生</span><span>战斗</span><span>冒险</span><span>后宫</span><span>人外</span></div>
+        <div class="acts">
+          <div class="b1"><svg class="ic ic-sm"><use href="#i-list"/></svg>开始阅读</div>
+          <div class="b2"><svg class="ic ic-sm"><use href="#i-plus"/></svg>加入书架</div>
+          <div class="b3"><svg class="ic"><use href="#i-dl"/></svg></div>
+        </div>
+        <div class="blk">
+          <div class="bh"><h3>简介</h3><span class="more">展开<svg class="ic"><use href="#i-chev"/></svg></span></div>
+          <p class="txt">走出便利商店要回家的高中生·菜月昴突然被召唤到异世界。这莫非就是很流行的异世界召唤？可是眼前没有召唤者就算了，还遭遇强盗迅速面临性命危机。这时，一名神秘银发美少女和猫精灵救了他一命。</p>
+        </div>
+        <div class="blk">
+          <div class="bh"><h3>目录</h3><span class="more">共 12 卷 · 328 章<svg class="ic"><use href="#i-chev"/></svg></span></div>
+          <div class="chap"><span>第四卷 后记</span><em>最新</em></div>
+          <div class="chap"><span>第四卷 第三章 逼近的阴影（3）</span></div>
+          <div class="chap"><span>第四卷 第二章 逼近的阴影（2）</span></div>
+          <div class="chap"><span>第四卷 第一章 逼近的阴影（1）</span></div>
+          <div class="chap" style="border-bottom:none"><span>第三卷 第十二章 那一日的意义</span></div>
+        </div>
+      </div>
+      <div class="cta">
+        <div class="sb"><svg class="ic"><use href="#i-shelf"/></svg>书架</div>
+        <div class="go">从第 113 话继续阅读</div>
+      </div>
+    </div>
+    <figcaption><b>03 书籍详情页</b><em>明亮</em></figcaption>
+  </figure>
+
+  <figure class="shot" id="reader-light">
+    <div class="screen is-reader t-light">
+      <div class="sbar" style="color:var(--reader-dim)"><span>9:41</span><span class="rt"><svg viewBox="0 0 20 16"><path d="M2 12h2.4V8H2v4Zm4.2 0h2.4V6H6.2v6Zm4.2 0h2.4V3.6h-2.4V12Zm4.2 0H17V1.4h-2.4V12Z" fill="currentColor"/></svg><span class="bat"></span></span></div>
+      <div class="rbar top">
+        <div class="iconbtn"><svg class="ic"><use href="#i-back"/></svg></div>
+        <div class="t"><b>Re:从零开始的异世界生活</b><i>第四卷 后记</i></div>
+        <div class="iconbtn"><svg class="ic"><use href="#i-more"/></svg></div>
+      </div>
+      <div class="rtext">
+        <h2>第四卷 后记</h2>
+        <p>　　写到这里，这个故事终于走完了第四卷。</p>
+        <p>　　回头看看，从第一卷提笔到现在，已经过去两年多。最初只是想写一个关于「选择」的小故事——一个普通人被丢进陌生的世界，手里没有像样的筹码，只能靠一次次笨拙的决定活下去。</p>
+        <p>　　我原本以为这样的角色很难让读者共情。他没有天赋，没有背景，连运气都算不上好。可收到的来信里，最多的一句话是：「他像我。」</p>
+        <p>　　感谢一路陪我走到这里的各位。感谢编辑在截稿前三天依然耐心地指出那几处矛盾，感谢画师把只存在于我脑子里的场景画成了可以凝视的画面。</p>
+        <p>　　下一卷，故事会进入真正的转折。</p>
+        <p>　　愿你在自己的世界里，也能做出不后悔的选择。</p>
+      </div>
+      <div class="rbar bot">
+        <div class="prog"><span>第 113 话 / 共 328 章</span><div class="pb"><i></i></div><span>34%</span></div>
+        <div class="racts">
+          <div class="rb"><svg class="ic"><use href="#i-list"/></svg>目录</div>
+          <div class="rb"><svg class="ic"><use href="#i-sun"/></svg>亮度</div>
+          <div class="rb on"><svg class="ic"><use href="#i-moon"/></svg>夜间</div>
+          <div class="rb"><svg class="ic"><use href="#i-set"/></svg>设置</div>
+        </div>
+      </div>
+    </div>
+    <figcaption><b>04 阅读器</b><em>明亮 · 纸感</em></figcaption>
+  </figure>
+
+</div>
+
+<script>
+(function(){
+  var d=document.documentElement;
+  if(!d.dataset.theme) d.dataset.theme='light';
+
+  document.querySelectorAll('figure.shot').forEach(function(f){
+    var c=f.cloneNode(true);
+    c.id=f.id.replace('-light','-dark');
+    c.classList.add('is-dark');
+    c.querySelector('.screen').classList.replace('t-light','t-dark');
+    var cap=c.querySelector('figcaption');
+    cap.innerHTML=cap.innerHTML.replace('明亮','深色');
+    f.after(c);
+  });
+
+  var only=new URLSearchParams(location.search).get('only');
+  if(only){
+    document.body.classList.add('only-mode');
+    document.querySelectorAll('figure.shot').forEach(function(f){ if(f.id!==only) f.remove(); });
+    return;
+  }
+
+  document.querySelectorAll('.btnrow button').forEach(function(b){
+    b.addEventListener('click',function(){
+      document.querySelectorAll('.btnrow button').forEach(function(x){x.classList.remove('on')});
+      b.classList.add('on');
+      document.body.classList.toggle('hide-dark', b.dataset.f==='light');
+      document.querySelectorAll('figure.shot').forEach(function(f){
+        if(b.dataset.f==='dark') f.style.display = f.classList.contains('is-dark') ? '' : 'none';
+        else if(b.dataset.f==='light') f.style.display = f.classList.contains('is-dark') ? 'none' : '';
+        else f.style.display='';
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>
