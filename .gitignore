@@ -1,4 +1,4 @@
-# Miscellaneous
+# 杂项文件
 *.class
 *.log
 *.pyc
@@ -14,18 +14,16 @@ Desktop.ini
 .swiftpm/
 migrate_working_dir/
 
-# IntelliJ related
+# IntelliJ 相关文件
 *.iml
 *.ipr
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# Visual Studio Code 的本地配置
+/.vscode/
 
-# Flutter/Dart/Pub related
+# Flutter、Dart 与 Pub 相关文件
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
@@ -36,34 +34,34 @@ migrate_working_dir/
 /build/
 /coverage/
 
-# Symbolication related
+# 符号化相关文件
 app.*.symbols
 
-# Obfuscation related
+# 混淆相关文件
 app.*.map.json
 
-# Android Studio will place build artifacts here
+# Android Studio 生成的构建产物
 /android/app/debug
 /android/app/profile
 /android/app/release
 
-# Widget Preview related
+# Widget 预览相关文件
 .widget_preview/
 
-# Local environment files (keep shareable examples)
+# 本地环境配置（保留可共享的示例文件）
 .env
 .env.*
 !.env.example
 !.env.*.example
 
-# Signing credentials, regardless of where they are stored
+# 签名凭据（无论存放在哪个目录）
 *.keystore
 *.jks
 *.p12
 *.p8
 *.mobileprovision
 
-# Local assistant data and machine-linked skills
+# 本机助手数据与机器相关的技能链接
 /.claude/skills/
 /.claude/skills-disabled/
 /.codex/skills/
